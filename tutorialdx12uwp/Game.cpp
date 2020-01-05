@@ -76,11 +76,21 @@ void Game::Update(DX::StepTimer const& timer)
     XMMATRIX view = XMMatrixLookAtLH(location, target, up);
     XMStoreFloat4x4(&m_view, view);
 
-    XMMATRIX world = XMLoadFloat4x4(&m_world);
-    XMMATRIX projection = XMMatrixPerspectiveFovLH(0.25 * XM_PI, m_outputWidth / m_outputHeight, 0.5f, 1000.0f);
-    XMMATRIX transform = world * view * projection;
+    static float delta = 0.0;
+    delta += elapsedTime * (0.1 * XM_2PI);
 
+    XMMATRIX world = XMLoadFloat4x4(&m_world);
+    XMMATRIX rotation = XMMatrixRotationX(delta);
+    XMMATRIX translation = XMMatrixTranslation(0.0, 0.0, 0.0);
+    world = world * rotation * translation;
+    
+    XMMATRIX projection = XMMatrixPerspectiveFovLH(0.25 * XM_PI, m_outputWidth / m_outputHeight, 0.5f, 1000.0f);
+    XMMATRIX worldview = world * view;
+    XMMATRIX transform = worldview * projection;
+    XMMATRIX normaltransform = XMMatrixTranspose(XMMatrixInverse(nullptr, worldview));
+    XMStoreFloat4x4(&m_vConstants.GNormalTransform, XMMatrixTranspose(normaltransform));
     XMStoreFloat4x4(&m_vConstants.GTransform, XMMatrixTranspose(transform));
+    
 
     // Actualización del buffer de constantes
 
@@ -851,7 +861,8 @@ void Game::PSO()
     m_inputLayout = {
 
         {"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
-        {"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
+        {"COLOR",0,DXGI_FORMAT_R32G32B32A32_FLOAT,0,12,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
+    {"NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,28,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
     };
 
 

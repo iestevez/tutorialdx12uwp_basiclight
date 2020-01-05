@@ -2,7 +2,7 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh()
+Mesh::Mesh() : defaultColor (XMFLOAT4(Colors::Coral))
 {
 	vertices = {
 		{XMFLOAT3(-1.0f,-1.0f,-1.0f),XMFLOAT4(Colors::Red)},
@@ -40,6 +40,10 @@ Mesh::Mesh()
 	isize = nindices * sind;
 }
 
+Mesh::Mesh(std::string const fileName) : defaultColor(XMFLOAT4(Colors::Coral)) {
+	readFile(fileName);
+}
+
 
 Mesh::~Mesh()
 {
@@ -51,4 +55,39 @@ unsigned int Mesh::GetVSize() const {
 
 unsigned int Mesh::GetISize() const {
 	return isize;
+}
+
+void Mesh::readFile(std::string const fileName) {
+	std::ifstream file(fileName, std::fstream::in);
+	if (!file.good())
+		return;
+	unsigned int nvertices;
+	vertices.clear();
+	indices.clear();
+	file >> nvertices;
+	float vec[3]{};
+	for (auto i = 0; i < nvertices; i++) {
+		file >> vec[0] >> vec[1] >> vec[2];
+		Vertex v;
+		v.pos = XMFLOAT3(vec[0], vec[1], vec[2]);
+		v.col = defaultColor;
+		vertices.push_back(v);
+	}
+
+	auto cont = 0;
+	for (auto i = 0; i < nvertices; i++) {
+		file >> vec[0] >> vec[1] >> vec[2];
+		vertices[cont++].normal = XMFLOAT3(vec[0], vec[1], vec[2]);
+	}
+	vsize = vertices.size();
+	unsigned int nindices;
+	file >> nindices;
+	for (auto i = 0; i < nindices; i++) {
+		unsigned int ind;
+		file >> ind;
+		indices.push_back(ind);
+	}
+	isize = indices.size();
+	file.close();
+
 }
