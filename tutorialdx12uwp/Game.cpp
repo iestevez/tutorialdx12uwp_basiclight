@@ -121,8 +121,8 @@ void Game::Render()
 
     // TODO: Add your rendering code here.
 
-
-    m_commandList->DrawIndexedInstanced(32, 1, 0, 0, 0);
+    unsigned long nindices = m_mesh.GetISize();
+    m_commandList->DrawIndexedInstanced(m_mesh.indices.size(), 1, 0, 0, 0);
 
 
 

@@ -49,11 +49,11 @@ Mesh::~Mesh()
 {
 }
 
-unsigned int Mesh::GetVSize() const {
+UINT64 Mesh::GetVSize() const {
 	return vsize;
 }
 
-unsigned int Mesh::GetISize() const {
+UINT64 Mesh::GetISize() const {
 	return isize;
 }
 
@@ -79,7 +79,7 @@ void Mesh::readFile(std::string const fileName) {
 		file >> vec[0] >> vec[1] >> vec[2];
 		vertices[cont++].normal = XMFLOAT3(vec[0], vec[1], vec[2]);
 	}
-	vsize = vertices.size();
+	vsize = vertices.size()*sizeof(Vertex);
 	unsigned int nindices;
 	file >> nindices;
 	for (auto i = 0; i < nindices; i++) {
@@ -87,7 +87,7 @@ void Mesh::readFile(std::string const fileName) {
 		file >> ind;
 		indices.push_back(ind);
 	}
-	isize = indices.size();
+	isize = indices.size()*sizeof(unsigned int);
 	file.close();
 
 }

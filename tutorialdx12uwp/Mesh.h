@@ -18,15 +18,15 @@ public:
 	Mesh(std::string const fileName);
 	~Mesh();
 
-	unsigned int GetVSize() const;
-	unsigned int GetISize() const;
+	UINT64 GetVSize() const;
+	UINT64 GetISize() const;
 	void readFile(std::string const fileName);
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
 private:
-	unsigned int vsize;
-	unsigned int isize;
+	UINT64 vsize;
+	UINT64 isize;
 	XMFLOAT4 defaultColor;
 };
 
