@@ -97,10 +97,10 @@ void Game::Update(DX::StepTimer const& timer)
     //void* data=nullptr;
     void* data;
 
-    m_vConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&data)); // realizamos el mapeo
+    m_vConstantBuffer[m_backBufferIndex]->Map(0, nullptr, reinterpret_cast<void**>(&data)); // realizamos el mapeo
     memcpy(data, reinterpret_cast<const void*>(&m_vConstants), sizeof(vConstants)); //Copia de la transformación
-    if (m_vConstantBuffer != nullptr)
-        m_vConstantBuffer->Unmap(0, nullptr);
+    if (m_vConstantBuffer[m_backBufferIndex] != nullptr)
+        m_vConstantBuffer[m_backBufferIndex]->Unmap(0, nullptr);
 
 
 
@@ -173,6 +173,7 @@ void Game::Clear()
 
     CD3DX12_GPU_DESCRIPTOR_HANDLE cHandle(m_cDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     //cHandle.Offset(0, m_cDescriptorSize);
+    cHandle.Offset(m_backBufferIndex, m_cDescriptorSize);
 
     m_commandList->SetGraphicsRootDescriptorTable(0, // número de root parameter
         cHandle //manejador a la posición del heap donde comenzaría el rango de descriptores
@@ -749,37 +750,46 @@ void Game::CreateMainInputFlowResources(const Mesh& mesh) {
 
     /* Tarea 1: Crear el buffer en un heap upload*/
     unsigned int elementSize = CalcConstantBufferByteSize(sizeof(m_vConstants));
+    
 
-    m_d3dDevice->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-        D3D12_HEAP_FLAG_NONE,
-        &CD3DX12_RESOURCE_DESC::Buffer(elementSize),
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&m_vConstantBuffer)
-    );
+    for (int i = 0; i < c_swapBufferCount; i++) {
+
+        m_d3dDevice->CreateCommittedResource(
+            &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+            D3D12_HEAP_FLAG_NONE,
+            &CD3DX12_RESOURCE_DESC::Buffer(elementSize),
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(&m_vConstantBuffer[i])
+        );
+
+    }
 
     /* Tarea 2: crear un heap de descriptores*/
 
     // El heap de descriptores para los buffers de constantes
     D3D12_DESCRIPTOR_HEAP_DESC cHeapDescriptor;
-    cHeapDescriptor.NumDescriptors = 1;
+    cHeapDescriptor.NumDescriptors = c_swapBufferCount;
     cHeapDescriptor.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     cHeapDescriptor.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     cHeapDescriptor.NodeMask = 0;
 
     m_d3dDevice->CreateDescriptorHeap(&cHeapDescriptor, IID_PPV_ARGS(&m_cDescriptorHeap));
-
+    m_cDescriptorSize = m_d3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    CD3DX12_CPU_DESCRIPTOR_HANDLE cHandle(m_cDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
     /* Tarea 3: crear un descriptor para el buffer*/
     // Ahora el descriptor de la vista buffer de constantes
-    D3D12_GPU_VIRTUAL_ADDRESS cAddress = m_vConstantBuffer->GetGPUVirtualAddress();
-    D3D12_CONSTANT_BUFFER_VIEW_DESC cDescriptor;
-    cDescriptor.BufferLocation = cAddress;
-    cDescriptor.SizeInBytes = CalcConstantBufferByteSize(sizeof(vConstants));
-    m_cDescriptorSize = sizeof(cDescriptor);
-    // Creamos el descriptor y lo colocamos al principio del heap de descriptores.
-    m_d3dDevice->CreateConstantBufferView(&cDescriptor, m_cDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
+    for (int i = 0; i < c_swapBufferCount; i++) {
+        D3D12_GPU_VIRTUAL_ADDRESS cAddress = m_vConstantBuffer[i]->GetGPUVirtualAddress();
+        D3D12_CONSTANT_BUFFER_VIEW_DESC cDescriptor;
+        cDescriptor.BufferLocation = cAddress;
+        cDescriptor.SizeInBytes = CalcConstantBufferByteSize(sizeof(vConstants));
+        
+        
+        // Creamos el descriptor 
+        m_d3dDevice->CreateConstantBufferView(&cDescriptor, cHandle);
+        cHandle.Offset(1, m_cDescriptorSize);
+    }
 
     /*
     Objetivo 3: Creamos una root signature ya que usaremos registros de los shaders conectados a recursos y

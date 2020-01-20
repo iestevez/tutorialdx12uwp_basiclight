@@ -50,6 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="tutorialdx12uwp_TemporaryKey.pfx" />
+    <None Include="Assets\mesh.dat">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="pixel.hlsl" />

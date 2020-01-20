@@ -42,7 +42,7 @@ private:
 
 
     void CreateMainInputFlowResources(const Mesh& mesh);
-    Mesh												m_mesh{ std::string("mesh.dat") };
+    Mesh												m_mesh{ std::string("Assets/mesh.dat") };
 
     D3D12_VERTEX_BUFFER_VIEW							m_vBufferView;
     D3D12_INDEX_BUFFER_VIEW								m_iBufferView;
@@ -51,7 +51,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource>              m_vBufferUpload; // Buffer para vértices
     Microsoft::WRL::ComPtr<ID3D12Resource>              m_iBufferDefault; // Buffer para vértices
     Microsoft::WRL::ComPtr<ID3D12Resource>              m_iBufferUpload; // Buffer para vértices
-    Microsoft::WRL::ComPtr<ID3D12Resource>				m_vConstantBuffer; // Buffer de constantes
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>		m_cDescriptorHeap;
     unsigned int m_cDescriptorSize;
 
@@ -99,7 +98,7 @@ private:
 
     // Direct3D Objects
     D3D_FEATURE_LEVEL                                   m_featureLevel;
-    static const UINT                                   c_swapBufferCount = 2;
+    static const UINT                                   c_swapBufferCount = 3;
     UINT                                                m_backBufferIndex;
     UINT                                                m_rtvDescriptorSize;
     Microsoft::WRL::ComPtr<ID3D12Device>                m_d3dDevice;
@@ -108,6 +107,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>        m_rtvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>        m_dsvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator>      m_commandAllocators[c_swapBufferCount];
+    Microsoft::WRL::ComPtr<ID3D12Resource>				m_vConstantBuffer[c_swapBufferCount]; // Buffer de constantes
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>   m_commandList;
     Microsoft::WRL::ComPtr<ID3D12Fence>                 m_fence;
     UINT64                                              m_fenceValues[c_swapBufferCount];
