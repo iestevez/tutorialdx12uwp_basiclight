@@ -21,12 +21,12 @@
     <ClInclude Include="StepTimer.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx12.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="d3dx12.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.scale-200.png">
