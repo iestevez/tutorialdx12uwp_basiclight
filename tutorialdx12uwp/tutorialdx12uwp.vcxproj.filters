@@ -25,8 +25,8 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="pch.h" />
     <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Logo.scale-200.png">
